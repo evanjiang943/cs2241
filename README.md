@@ -95,28 +95,28 @@ python semantic_summarization.py --graph_file data/web-Stanford.txt --attribute_
 The framework evaluates summarization techniques using multiple metrics:
 
 1. **PageRank Preservation**
-  - Spearman/Kendall correlation between original and summary PageRank vectors
-  - Top-k node overlap for most important nodes
+     - Spearman/Kendall correlation between original and summary PageRank vectors
+     - Top-k node overlap for most important nodes
 2. **L1 Error**
-  - Difference between original and summary PageRank vectors
+     - Difference between original and summary PageRank vectors
 3. **Centrality Preservation**
-  - Correlation for degree, eigenvector, and closeness centrality
-  - Preservation of node importance rankings
+     - Correlation for degree, eigenvector, and closeness centrality
+     - Preservation of node importance rankings
 4. **Community Structure**
-  - Normalized Mutual Information (NMI) between original and summary communities
-  - Adjusted Rand Index (ARI) for cluster similarity
+     - Normalized Mutual Information (NMI) between original and summary communities
+     - Adjusted Rand Index (ARI) for cluster similarity
 5. **Degree Distribution**
-  - KL divergence between original and summary degree distributions
-  - Preservation of scale-free or other distributional properties
+     - KL divergence between original and summary degree distributions
+     - Preservation of scale-free or other distributional properties
 6. **Clustering Coefficient**
-  - Difference in average clustering coefficient
-  - Preservation of local graph density
+     - Difference in average clustering coefficient
+     - Preservation of local graph density
 7. **Path Lengths**
-  - Ratio of characteristic path lengths
-  - Preservation of graph diameter
+     - Ratio of characteristic path lengths
+     - Preservation of graph diameter
 8. **Runtime and Compression**
-  - Node and edge compression ratios
-  - Speedup for computational tasks like PageRank
+     - Node and edge compression ratios
+     - Speedup for computational tasks like PageRank
 
 ## Datasets
 The code is designed to work with SNAP and WebGraph datasets:
