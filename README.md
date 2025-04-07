@@ -1,150 +1,192 @@
-# Project Overview
-Web-scale graphs, such as hyperlink graphs of the internet, can contain billions of nodes and edges, making analysis computationally expensive. This project explores techniques to reduce graph size while preserving multiple graph properties, enabling more efficient analysis while maintaining accuracy.
+# Graph Property-Preserving Summarization
 
-## Implemented Methods
-1. **Structural Property Summarization**
-   - Groups nodes based on structural properties (communities, degree, clustering)
-   - Preserves community structure and local connectivity patterns
-2. **Spectral Summarization**
-   - Preserves spectral properties of the graph
-   - Maintains random walk behavior and graph connectivity characteristics
-3. **Hybrid Summarization**
-   - Two-stage approach that combines structural grouping with edge refinement
-   - Balances multiple property preservation objectives
-4. **Semantic-Aware Summarization**
-   - Incorporates node attributes or metadata
-   - Ensures semantically coherent nodes are grouped together
-5. **Graph Sampling-Based Summarization**
-   - Uses strategic node sampling (random walk, forest fire, snowball)
-   - Produces representative subgraphs that preserve key properties
-6. **Edge Sampling-Based Summarization**
-   - Various edge sampling strategies (uniform, degree-biased, spanning tree, spectral)
-   - Maintains connectivity while reducing edges
+A modular framework for creating and evaluating graph summaries that preserve important structural and analytical properties of the original graph, with a focus on web-scale networks.
 
-## Directory Structure
+## Overview
 
-## Directory Structure
+Large-scale graphs such as web graphs, social networks, and citation networks can be challenging to analyze due to computational constraints. This framework provides methods to create smaller summary graphs that preserve key properties of the original graph, making analysis more efficient while maintaining accuracy.
 
-```
-├── graph_properties_framework.py  # Core implementation of property-preserving summarization
-├── experiment_runner.py           # Script to run experiments on different methods
-├── web_graph_demo.py              # Demo script for web graph datasets
-├── semantic_summarization.py      # Implementation of semantic-aware summarization
-├── run_all.py                     # Main script to run all experiments
-├── data/                          # Directory for datasets
-├── results/                       # Directory for experiment results
-├── plots/                         # Directory for visualizations
-└── models/                        # Directory for saved models
-```
+## Features
+
+- **Multiple summarization techniques:**
+  - Community-based summarization (Louvain method)
+  - Spectral summarization (preserves spectral properties)
+  - Customizable framework for adding new methods
+
+- **Comprehensive property evaluation:**
+  - PageRank preservation (correlation and error metrics)
+  - Centrality preservation (degree, eigenvector)
+  - Community structure preservation (NMI, ARI)
+  - Degree distribution similarity
+  - Clustering coefficient preservation
+  - Path length characteristics
+  - Runtime and compression metrics
+
+- **Web-scale compatible:**
+  - Memory-efficient data loading
+  - Specialized algorithms for large graphs
+  - Built-in support for SNAP web graph datasets
 
 ## Installation
 
-### Requirements
-- Python 3.7+  
-- networkx  
-- numpy  
-- pandas  
-- matplotlib  
-- scipy  
-- scikit-learn  
-- tqdm  
-- python-louvain (community)  
-- seaborn
+### Using Conda (recommended)
 
-You can install all dependencies using:
-```
-pip install networkx numpy pandas matplotlib scipy scikit-learn tqdm python-louvain seaborn
-```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/graph-summarization.git
+cd graph-summarization
 
-## Usage
-### Running All Experiments
-To run all experiments with default settings:
-```
-python run_all.py
-```
-This will:
-- Download required datasets
-- Run experiments with various summarization methods
-- Evaluate preservation of multiple graph properties
-- Generate visualizations of results
+# Create conda environment
+conda env create -f environment.yml
 
-### Command-line Options
-```
-python run_all.py --datasets web-Stanford web-Google --reductions 0.1 0.2 0.3
+# Activate environment
+conda activate graph-sum
+
+# Install package in development mode
+pip install -e .
 ```
 
-### Additional options:
---skip_download: Skip dataset download
---methods: Specify which summarization methods to evaluate
---base_dir PATH: Base directory for the project
+### Using pip
 
-## Running Individual Components
-### Property Evaluation Experiments
-```python experiment_runner.py --dataset data/web-Stanford.txt --dataset_type snap --methods structural_community spectral hybrid --reduction 0.1 --output_dir results/web-Stanford
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/graph-summarization.git
+cd graph-summarization
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install package in development mode
+pip install -e .
 ```
-Web Graph Demo
+
+## Quick Start
+
+```python
+import networkx as nx
+from graphsum.summarizers.community import CommunityBasedSummarizer
+from graphsum.evaluation.evaluator import GraphEvaluator
+
+# Load a graph
+G = nx.karate_club_graph()
+
+# Create a summarizer
+summarizer = CommunityBasedSummarizer()
+
+# Generate a summary graph
+summary = summarizer.summarize(G, reduction_factor=0.3)
+
+# Evaluate how well properties are preserved
+evaluator = GraphEvaluator(G, summary, summarizer.node_mapping, summarizer.reverse_mapping)
+results = evaluator.evaluate_all()
+
+# Print a summary of results
+evaluator.print_summary()
 ```
-python web_graph_demo.py --dataset web-Stanford --data_dir data --methods structural_community spectral hybrid semantic --reduction 0.1
+
+## Working with Web-Scale Graphs
+
+```bash
+# List available SNAP datasets
+python -m graphsum.io.snap list
+
+# Download a dataset
+python -m graphsum.io.snap download web-Stanford data/
+
+# Run experiments
+python scripts/run_experiment.py --dataset web-Stanford --methods community spectral --reductions 0.1 0.2 0.3
 ```
-### Semantic-Aware Summarization
+
+## Web Graph Demo
+
+```bash
+# Run demo on web-Stanford dataset
+python examples/webgraph_demo.py --dataset web-Stanford --methods community --reduction 0.1
 ```
-python semantic_summarization.py --graph_file data/web-Stanford.txt --attribute_file data/web-Stanford-attributes.txt --method tfidf --clusters 50 --output_dir results/semantic
+
+## Project Structure
+
+```
+graph_summarization/
+├── graphsum/                  # Main package directory
+│   ├── summarizers/           # Summarization algorithms
+│   │   ├── base.py            # Base summarizer class
+│   │   ├── community.py       # Community-based summarization
+│   │   ├── spectral.py        # Spectral summarization
+│   ├── evaluation/            # Evaluation metrics
+│   │   ├── evaluator.py       # Main evaluation class
+│   ├── io/                    # Input/output utilities
+│   │   ├── snap.py            # SNAP dataset loader
+├── scripts/                   # CLI scripts
+│   ├── run_experiment.py      # Main experiment runner
+├── examples/                  # Example usage
+│   ├── webgraph_demo.py       # Demo on web-scale graph
+├── data/                      # Dataset directory
+├── results/                   # Results directory
+```
+
+## Extending the Framework
+
+To implement a new summarization technique:
+
+1. Create a new class that inherits from `GraphSummarizer` in `graphsum/summarizers/base.py`
+2. Implement the `summarize()` method
+3. Use the `GraphEvaluator` to evaluate your new method
+
+Example:
+
+```python
+from graphsum.summarizers.base import GraphSummarizer
+
+class MyCustomSummarizer(GraphSummarizer):
+    def __init__(self, name="MyCustom"):
+        super().__init__(name=name)
+    
+    def summarize(self, graph, reduction_factor=0.1, **kwargs):
+        # Implement your summarization logic here
+        # ...
+        
+        # Return the summary graph
+        return self.summary_graph
 ```
 
 ## Evaluation Metrics
-The framework evaluates summarization techniques using multiple metrics:
 
-1. **PageRank Preservation**
-     - Spearman/Kendall correlation between original and summary PageRank vectors
-     - Top-k node overlap for most important nodes
-2. **L1 Error**
-     - Difference between original and summary PageRank vectors
-3. **Centrality Preservation**
-     - Correlation for degree, eigenvector, and closeness centrality
-     - Preservation of node importance rankings
-4. **Community Structure**
-     - Normalized Mutual Information (NMI) between original and summary communities
-     - Adjusted Rand Index (ARI) for cluster similarity
-5. **Degree Distribution**
-     - KL divergence between original and summary degree distributions
-     - Preservation of scale-free or other distributional properties
-6. **Clustering Coefficient**
-     - Difference in average clustering coefficient
-     - Preservation of local graph density
-7. **Path Lengths**
-     - Ratio of characteristic path lengths
-     - Preservation of graph diameter
-8. **Runtime and Compression**
-     - Node and edge compression ratios
-     - Speedup for computational tasks like PageRank
+The `GraphEvaluator` provides comprehensive metrics to assess summary quality:
 
-## Datasets
-The code is designed to work with SNAP and WebGraph datasets:
+- **PageRank Preservation:**
+  - Spearman/Kendall correlation
+  - Top-k node overlap
+  - L1 error
 
-- web-Stanford: Web graph of Stanford.edu
-- web-Google: Web graph from Google
-- web-NotreDame: Web graph of Notre Dame
-- web-BerkStan: Web graph of Berkeley and Stanford
+- **Centrality Preservation:**
+  - Degree and eigenvector centrality correlation
 
-The run_all.py script will automatically download these datasets from SNAP.
+- **Community Structure:**
+  - NMI/ARI metrics comparing original and summary communities
 
-## Extending the Framework
-To add a new summarization technique:
+- **Degree Distribution:**
+  - KL divergence between distributions
+  - Correlation of node degree values
 
-1. Create a new class that inherits from GraphSummarizer in graph_summarization.py
-2. Implement the summarize() method with your technique
-3. Add your method to the experiment runner
+- **Clustering and Path Metrics:**
+  - Clustering coefficient comparison
+  - Characteristic path length ratio
+  - Diameter comparison
 
-## Citation
-If you use this code in your research, please cite:
-```
-@inproceedings{graphsummarization2025,
-  title={PageRank-Preserving Graph Summarization Techniques for Web-Scale Graphs},
-  author={Jiang, Evan and Jiang, Ryan and Han, Roy},
-  booktitle={CS 2241 Project},
-  year={2025}
-}
-```
+- **Performance:**
+  - Compression ratios
+  - Runtime improvements
+
+## References
+
+The framework implements and builds upon methods from:
+
+- Riondato, M., & Vandin, F. (2017). Graph summarization with quality guarantees.
+- Loukas, A. (2019). Graph reduction with spectral and cut guarantees.
+- Spielman, D. A., & Srivastava, N. (2011). Graph sparsification by effective resistances.
+- Navlakha, S., Rastogi, R., & Shrivastava, N. (2008). Graph summarization with bounded error.
 
 ## License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
