@@ -24,6 +24,7 @@ Web-scale graphs, such as hyperlink graphs of the internet, can contain billions
 ## Directory Structure
 
 ## Directory Structure
+
 ├── graph_properties_framework.py  # Core implementation of property-preserving summarization
 ├── experiment_runner.py           # Script to run experiments on different methods
 ├── web_graph_demo.py              # Demo script for web graph datasets
