@@ -1,0 +1,27 @@
+2025-04-07 14:14:01,412 - __main__ - INFO - Starting experiment: web-Stanford_20250407_141401
+2025-04-07 14:14:01,412 - __main__ - INFO - Using SNAP dataset: web-Stanford
+2025-04-07 14:14:01,412 - graphsum.io.snap - INFO - Downloading web-Stanford from SNAP...
+2025-04-07 14:14:05,385 - graphsum.io.snap - INFO - Extracting data/web-Stanford.txt.gz...
+2025-04-07 14:14:05,561 - graphsum.io.snap - INFO - Dataset saved to data/web-Stanford.txt
+2025-04-07 14:14:05,561 - graphsum.io.snap - INFO - Loading graph from data/web-Stanford.txt
+2025-04-07 14:14:09,983 - graphsum.io.snap - INFO - Loaded graph with 281903 nodes and 1992636 edges
+2025-04-07 14:14:10,072 - __main__ - INFO - Graph loaded: 281903 nodes, 1992636 edges
+2025-04-07 14:14:10,156 - __main__ - INFO - Running experiments with method: community
+2025-04-07 14:14:10,156 - __main__ - INFO -   Reduction factor: 0.1
+2025-04-07 14:14:10,156 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
+2025-04-07 14:28:29,852 - __main__ - ERROR - Error in experiment community, reduction=0.1: keywords must be strings
+2025-04-07 14:28:29,855 - __main__ - ERROR - keywords must be strings
+Traceback (most recent call last):
+  File "/Users/evanjiang/Harvard/Academics/year-4/Senior Spring/CS 2241/cs2241/scripts/run_experiment.py", line 162, in run_experiment
+    summary_graph = summarizer.summarize(graph, reduction_factor=reduction)
+  File "/Users/evanjiang/Harvard/Academics/year-4/Senior Spring/CS 2241/cs2241/graphsum/summarizers/community.py", line 67, in summarize
+    communities = community_louvain.best_partition(
+  File "/opt/anaconda3/envs/graph-sum/lib/python3.9/site-packages/community/community_louvain.py", line 249, in best_partition
+    dendo = generate_dendrogram(graph,
+  File "/opt/anaconda3/envs/graph-sum/lib/python3.9/site-packages/community/community_louvain.py", line 357, in generate_dendrogram
+    current_graph = induced_graph(partition, current_graph, weight)
+  File "/opt/anaconda3/envs/graph-sum/lib/python3.9/site-packages/community/community_louvain.py", line 416, in induced_graph
+    ret.add_edge(com1, com2, **{weight: w_prec + edge_weight})
+TypeError: keywords must be strings
+2025-04-07 14:28:29,885 - __main__ - INFO -   Reduction factor: 0.2
+2025-04-07 14:28:29,886 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
