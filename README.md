@@ -137,12 +137,14 @@ To add a new summarization technique:
 
 ## Citation
 If you use this code in your research, please cite:
+```
 @inproceedings{graphsummarization2025,
   title={PageRank-Preserving Graph Summarization Techniques for Web-Scale Graphs},
   author={Jiang, Evan and Jiang, Ryan and Han, Roy},
   booktitle={CS 2241 Project},
   year={2025}
 }
+```
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
