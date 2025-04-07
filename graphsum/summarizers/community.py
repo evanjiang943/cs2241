@@ -53,7 +53,7 @@ class CommunityBasedSummarizer(GraphSummarizer):
         self._start_timer()
         
         resolution = kwargs.get('resolution', self.resolution)
-        weight = kwargs.get('weight', None)
+        weight_attr = kwargs.get('weight', None)
         
         # Handle directed graphs by converting to undirected
         if isinstance(graph, nx.DiGraph):
@@ -64,9 +64,18 @@ class CommunityBasedSummarizer(GraphSummarizer):
         
         # Detect communities
         logger.info(f"Detecting communities using Louvain method (resolution={resolution})")
+        
+        # Workaround for python-louvain issue with weight parameter
+        if weight_attr:
+            # Ensure all edges have the weight attribute
+            for u, v, data in graph_for_communities.edges(data=True):
+                if weight_attr not in data:
+                    graph_for_communities[u][v][weight_attr] = 1.0
+        
+        # Call community detection with fixed parameters
         communities = community_louvain.best_partition(
             graph_for_communities, 
-            weight=weight,
+            weight=weight_attr,
             resolution=resolution,
             random_state=42
         )
@@ -114,13 +123,20 @@ class CommunityBasedSummarizer(GraphSummarizer):
             # Self-loops in summary represent internal community edges
             if u_comm == v_comm:
                 continue  # We'll handle internal edges separately
-                
-            edge_weight = data.get(weight, 1.0)
+            
+            # Get edge weight if available
+            edge_weight = data.get(weight_attr, 1.0) if weight_attr else 1.0
             
             if self.summary_graph.has_edge(u_comm, v_comm):
-                self.summary_graph[u_comm][v_comm]['weight'] += edge_weight
-                self.summary_graph[u_comm][v_comm]['count'] += 1
+                # Get existing edge data
+                current_weight = self.summary_graph[u_comm][v_comm].get('weight', 0)
+                current_count = self.summary_graph[u_comm][v_comm].get('count', 0)
+                
+                # Update edge data
+                self.summary_graph[u_comm][v_comm]['weight'] = current_weight + edge_weight
+                self.summary_graph[u_comm][v_comm]['count'] = current_count + 1
             else:
+                # Add new edge with explicit string keywords
                 self.summary_graph.add_edge(
                     u_comm, v_comm, 
                     weight=edge_weight,
@@ -136,17 +152,17 @@ class CommunityBasedSummarizer(GraphSummarizer):
             self.summary_graph.nodes[comm_id]['internal_edges'] = internal_edges
         
         # Normalize edge weights by potential connections
-        for u, v, data in self.summary_graph.edges(data=True):
+        for u, v in self.summary_graph.edges():
             u_size = len(self.reverse_mapping[u])
             v_size = len(self.reverse_mapping[v])
             max_possible_edges = u_size * v_size
             
             # Add normalization info to edge
-            data['max_connections'] = max_possible_edges
+            self.summary_graph[u][v]['max_connections'] = max_possible_edges
             if max_possible_edges > 0:
-                data['density'] = data['count'] / max_possible_edges
+                self.summary_graph[u][v]['density'] = self.summary_graph[u][v]['count'] / max_possible_edges
             else:
-                data['density'] = 0
+                self.summary_graph[u][v]['density'] = 0
         
         summary_creation_time = self._stop_timer('summary_creation')
         logger.info(f"Summary graph created in {summary_creation_time:.2f} seconds")

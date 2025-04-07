@@ -31,6 +31,7 @@ class GraphSummarizer(ABC):
         self.node_mapping = {}     # Maps original nodes to summary nodes
         self.reverse_mapping = {}  # Maps summary nodes to original nodes
         self.stats = {}            # Stores runtime statistics
+        self._start_time = None
     
     @abstractmethod
     def summarize(self, graph, reduction_factor=0.1, **kwargs):
@@ -58,6 +59,9 @@ class GraphSummarizer(ABC):
         Args:
             name (str): Name of the timed operation
         """
+        if self._start_time is None:
+            return 0
+            
         elapsed = time.time() - self._start_time
         self.stats[name] = elapsed
         return elapsed
