@@ -25,6 +25,7 @@ Web-scale graphs, such as hyperlink graphs of the internet, can contain billions
 
 ## Directory Structure
 
+```
 ├── graph_properties_framework.py  # Core implementation of property-preserving summarization
 ├── experiment_runner.py           # Script to run experiments on different methods
 ├── web_graph_demo.py              # Demo script for web graph datasets
@@ -34,7 +35,7 @@ Web-scale graphs, such as hyperlink graphs of the internet, can contain billions
 ├── results/                       # Directory for experiment results
 ├── plots/                         # Directory for visualizations
 └── models/                        # Directory for saved models
-
+```
 
 ## Installation
 
@@ -93,27 +94,27 @@ python semantic_summarization.py --graph_file data/web-Stanford.txt --attribute_
 ## Evaluation Metrics
 The framework evaluates summarization techniques using multiple metrics:
 
-1. PageRank Preservation
+1. **PageRank Preservation**
   - Spearman/Kendall correlation between original and summary PageRank vectors
   - Top-k node overlap for most important nodes
-2. L1 Error
+2. **L1 Error**
   - Difference between original and summary PageRank vectors
-3. Centrality Preservation
+3. **Centrality Preservation**
   - Correlation for degree, eigenvector, and closeness centrality
   - Preservation of node importance rankings
-4. Community Structure
+4. **Community Structure**
   - Normalized Mutual Information (NMI) between original and summary communities
   - Adjusted Rand Index (ARI) for cluster similarity
-5. Degree Distribution
+5. **Degree Distribution**
   - KL divergence between original and summary degree distributions
   - Preservation of scale-free or other distributional properties
-6. Clustering Coefficient
+6. **Clustering Coefficient**
   - Difference in average clustering coefficient
   - Preservation of local graph density
-7. Path Lengths
+7. **Path Lengths**
   - Ratio of characteristic path lengths
   - Preservation of graph diameter
-8. Runtime and Compression
+8. **Runtime and Compression**
   - Node and edge compression ratios
   - Speedup for computational tasks like PageRank
 
