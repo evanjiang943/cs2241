@@ -65,13 +65,6 @@ class CommunityBasedSummarizer(GraphSummarizer):
         
         # Detect communities
         logger.info(f"Detecting communities using Louvain method (resolution={resolution})")
-        
-        # # Workaround for python-louvain issue with weight parameter
-        # if weight_attr:
-        #     # Ensure all edges have the weight attribute
-        #     for u, v, data in graph_for_communities.edges(data=True):
-        #         if weight_attr not in data:
-        #             graph_for_communities[u][v][weight_attr] = 1.0
 
         # logger.info(f"Using weight attribute: {weight_attr}")
         logger.info(f"Graph has {graph_for_communities.number_of_nodes()} nodes and {graph_for_communities.number_of_edges()} edges")
