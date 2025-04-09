@@ -1,0 +1,33 @@
+2025-04-08 22:01:00,557 - __main__ - INFO - Starting experiment: web-Stanford_20250408_220100
+2025-04-08 22:01:00,557 - __main__ - INFO - Using SNAP dataset: web-Stanford
+2025-04-08 22:01:00,557 - graphsum.io.snap - INFO - Dataset already exists at data/web-Stanford.txt
+2025-04-08 22:01:00,557 - graphsum.io.snap - INFO - Loading graph from data/web-Stanford.txt
+2025-04-08 22:01:04,810 - graphsum.io.snap - INFO - Loaded graph with 281903 nodes and 1992636 edges
+2025-04-08 22:01:04,888 - __main__ - INFO - Graph loaded: 281903 nodes, 1992636 edges
+2025-04-08 22:01:04,967 - __main__ - INFO - Running experiments with method: community
+2025-04-08 22:01:04,967 - __main__ - INFO -   Reduction factor: 0.1
+2025-04-08 22:01:04,967 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
+2025-04-08 22:01:06,151 - graphsum.summarizers.community - INFO - Using weight attribute: weight
+2025-04-08 22:01:06,230 - graphsum.summarizers.community - INFO - Graph has 281903 nodes and 1992636 edges
+2025-04-08 22:01:06,310 - graphsum.summarizers.community - INFO - Graph density: 0.0000501488
+2025-04-08 22:14:35,588 - graphsum.summarizers.community - INFO - Community detection completed in 810.62 seconds
+2025-04-08 22:14:35,594 - graphsum.summarizers.community - INFO - Detected 745 communities
+2025-04-08 22:14:38,452 - graphsum.summarizers.community - INFO - Summary graph created in 2.86 seconds
+2025-04-08 22:14:38,453 - graphsum.summarizers.community - INFO - Summary: 745 nodes, 941 edges
+2025-04-08 22:14:38,453 - __main__ - INFO -   Summary created with 745 nodes and 941 edges in 813.49 seconds
+2025-04-08 22:14:38,453 - graphsum.evaluation.evaluator - INFO - Running comprehensive evaluation of graph summary
+2025-04-08 22:14:38,454 - graphsum.evaluation.evaluator - INFO - Evaluating PageRank preservation
+2025-04-08 22:14:43,841 - graphsum.evaluation.evaluator - INFO - Evaluating centrality preservation
+2025-04-08 22:15:53,299 - graphsum.evaluation.evaluator - WARNING - Failed to compute eigenvector centrality, skipping
+2025-04-08 22:15:53,422 - graphsum.evaluation.evaluator - INFO - Evaluating community structure preservation
+2025-04-08 22:15:53,422 - graphsum.evaluation.evaluator - WARNING - Large graph detected, using simplified community evaluation
+2025-04-08 22:15:55,223 - graphsum.evaluation.evaluator - INFO - Evaluating degree distribution preservation
+2025-04-08 22:15:55,529 - graphsum.evaluation.evaluator - INFO - Evaluating clustering coefficient preservation
+2025-04-08 22:16:04,983 - graphsum.evaluation.evaluator - INFO - Evaluating path length preservation
+2025-04-08 22:30:35,426 - graphsum.evaluation.evaluator - INFO - Evaluating compression and runtime metrics
+2025-04-08 22:30:40,249 - graphsum.evaluation.evaluator - INFO - Evaluation completed in 4.82 seconds
+2025-04-08 22:30:40,412 - __main__ - INFO - Running experiments with method: spectral
+2025-04-08 22:30:40,412 - __main__ - INFO -   Reduction factor: 0.1
+2025-04-08 22:30:40,412 - graphsum.summarizers.spectral - INFO - Creating spectral summary with 28190 nodes (reduction=0.1)
+2025-04-08 22:30:40,412 - graphsum.summarizers.spectral - INFO - Computing graph Laplacian
+2025-04-08 22:30:44,297 - graphsum.summarizers.spectral - INFO - Computing eigenvectors
