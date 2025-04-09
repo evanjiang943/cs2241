@@ -54,6 +54,7 @@ class CommunityBasedSummarizer(GraphSummarizer):
         
         resolution = kwargs.get('resolution', self.resolution)
         weight_attr = kwargs.get('weight', None)
+        weight_attr = 'weight'
         
         # Handle directed graphs by converting to undirected
         if isinstance(graph, nx.DiGraph):
@@ -71,6 +72,10 @@ class CommunityBasedSummarizer(GraphSummarizer):
             for u, v, data in graph_for_communities.edges(data=True):
                 if weight_attr not in data:
                     graph_for_communities[u][v][weight_attr] = 1.0
+
+        logger.info(f"Using weight attribute: {weight_attr}")
+        logger.info(f"Graph has {graph_for_communities.number_of_nodes()} nodes and {graph_for_communities.number_of_edges()} edges")
+        logger.info(f"Graph density: {nx.density(graph_for_communities):.10f}")
         
         # Call community detection with fixed parameters
         communities = community_louvain.best_partition(

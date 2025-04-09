@@ -591,6 +591,7 @@ class GraphEvaluator:
         return pd.DataFrame([self.results])
     
     def print_summary(self):
+        "TODO: use the correct keys for the summary results, cross-reference with the csv"
         """Print a summary of the evaluation results."""
         print("\nEvaluation Summary:")
         print(f"Original graph: {self.original_graph.number_of_nodes()} nodes, {self.original_graph.number_of_edges()} edges")
@@ -607,8 +608,8 @@ class GraphEvaluator:
         print(f"PageRank preservation: {pr_corr:.3f} correlation, {pr_l1:.6f} L1 error")
         
         # Community structure
-        nmi = self.results.get('community_nmi', 0)
-        ari = self.results.get('community_ari', 0)
+        nmi = self.results.get('community_nmi_sampled', 0)
+        ari = self.results.get('community_ari_sampled', 0)
         print(f"Community preservation: {nmi:.3f} NMI, {ari:.3f} ARI")
         
         # Speedup
