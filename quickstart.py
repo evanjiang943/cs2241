@@ -1,6 +1,7 @@
 # quickstart.py
 import networkx as nx
 import community as community_louvain
+from graphsum.evaluation.evaluator import GraphEvaluator
 
 # Create a simple Karate Club graph
 G = nx.karate_club_graph()
@@ -35,5 +36,19 @@ print(f"Summary graph: {summary.number_of_nodes()} nodes, {summary.number_of_edg
 # Calculate PageRank for both graphs
 pr_original = nx.pagerank(G)
 pr_summary = nx.pagerank(summary)
+
+# Create proper reverse mapping (community ID -> list of nodes)
+reverse_mapping = {}
+for node, comm_id in communities.items():
+    if comm_id not in reverse_mapping:
+        reverse_mapping[comm_id] = []
+    reverse_mapping[comm_id].append(node)
+
+# Evaluate how well properties are preserved
+evaluator = GraphEvaluator(G, summary, communities, reverse_mapping)
+results = evaluator.evaluate_all()
+
+# Print a summary of results
+evaluator.print_summary()
 
 print("Done! Summary graph created successfully.")
