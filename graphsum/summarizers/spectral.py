@@ -55,7 +55,6 @@ class SpectralSummarizer(GraphSummarizer):
         
         # Parse parameters
         n_eigenvectors = kwargs.get('n_eigenvectors', self.n_eigenvectors)
-        # weight = kwargs.get('weight', None)
         normalized = kwargs.get('normalized', True)
         
         # Determine target number of nodes in summary

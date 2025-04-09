@@ -53,9 +53,7 @@ class CommunityBasedSummarizer(GraphSummarizer):
         self._start_timer()
         
         resolution = kwargs.get('resolution', self.resolution)
-        # weight_attr = kwargs.get('weight', None)
-        # weight_attr = 'weight'
-        
+
         # Handle directed graphs by converting to undirected
         if isinstance(graph, nx.DiGraph):
             logger.info("Converting directed graph to undirected for community detection")
