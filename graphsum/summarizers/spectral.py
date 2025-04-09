@@ -55,7 +55,7 @@ class SpectralSummarizer(GraphSummarizer):
         
         # Parse parameters
         n_eigenvectors = kwargs.get('n_eigenvectors', self.n_eigenvectors)
-        weight = kwargs.get('weight', None)
+        # weight = kwargs.get('weight', None)
         normalized = kwargs.get('normalized', True)
         
         # Determine target number of nodes in summary
@@ -74,9 +74,9 @@ class SpectralSummarizer(GraphSummarizer):
         # Compute Laplacian matrix
         logger.info("Computing graph Laplacian")
         if normalized:
-            laplacian = nx.normalized_laplacian_matrix(graph_for_laplacian, weight=weight)
+            laplacian = nx.normalized_laplacian_matrix(graph_for_laplacian)
         else:
-            laplacian = nx.laplacian_matrix(graph_for_laplacian, weight=weight)
+            laplacian = nx.laplacian_matrix(graph_for_laplacian)
         
         # Compute eigenvectors (using sparse eigensolvers for large graphs)
         logger.info("Computing eigenvectors")
@@ -155,7 +155,7 @@ class SpectralSummarizer(GraphSummarizer):
             if u_summary == v_summary:
                 continue  # We'll handle internal edges separately
                 
-            edge_weight = data.get(weight, 1.0)
+            edge_weight = data.get('weight', 1.0)
             
             if self.summary_graph.has_edge(u_summary, v_summary):
                 self.summary_graph[u_summary][v_summary]['weight'] += edge_weight
