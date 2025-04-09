@@ -57,26 +57,14 @@ pip install -e .
 
 ## Quick Start
 
-```python
-import networkx as nx
-from graphsum.summarizers.community import CommunityBasedSummarizer
-from graphsum.evaluation.evaluator import GraphEvaluator
+```bash
+# Run demo on karate-club dataset using community method
+python quickstart/demo_community.py
+```
 
-# Load a graph
-G = nx.karate_club_graph()
-
-# Create a summarizer
-summarizer = CommunityBasedSummarizer()
-
-# Generate a summary graph
-summary = summarizer.summarize(G, reduction_factor=0.3)
-
-# Evaluate how well properties are preserved
-evaluator = GraphEvaluator(G, summary, summarizer.node_mapping, summarizer.reverse_mapping)
-results = evaluator.evaluate_all()
-
-# Print a summary of results
-evaluator.print_summary()
+```bash
+# Run demo on karate-club dataset using spectral method
+python quickstart/demo_spectral.py
 ```
 
 ## Working with Web-Scale Graphs
