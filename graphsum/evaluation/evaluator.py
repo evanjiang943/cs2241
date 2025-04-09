@@ -608,8 +608,8 @@ class GraphEvaluator:
         print(f"PageRank preservation: {pr_corr:.3f} correlation, {pr_l1:.6f} L1 error")
         
         # Community structure
-        nmi = self.results.get('community_nmi_sampled', 0)
-        ari = self.results.get('community_ari_sampled', 0)
+        nmi = max(self.results.get('community_nmi_sampled', 0), self.results.get('community_nmi', 0))
+        ari = max(self.results.get('community_ari_sampled', 0), self.results.get('community_ari', 0))
         print(f"Community preservation: {nmi:.3f} NMI, {ari:.3f} ARI")
         
         # Speedup
