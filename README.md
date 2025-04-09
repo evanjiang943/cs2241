@@ -1,10 +1,10 @@
 # Graph Property-Preserving Summarization
 
-A modular framework for creating and evaluating graph summaries that preserve important structural and analytical properties of the original graph, with a focus on web-scale networks.
+This project implements and evaluates various graph summarization techniques with a focus on preserving important structural and analytical properties of the original graph. It addresses the challenge of analyzing large-scale graphs by creating compact graph summaries that maintain key properties such as community structure, centrality distributions, and spectral characteristics.
 
 ## Overview
 
-Large-scale graphs such as web graphs, social networks, and citation networks can be challenging to analyze due to computational constraints. This framework provides methods to create smaller summary graphs that preserve key properties of the original graph, making analysis more efficient while maintaining accuracy.
+Web-scale graphs, such as hyperlink graphs of the internet, can contain billions of nodes and edges, making analysis computationally expensive. This project explores and analyzes how well various graph reduction techniques perform on various metrics.
 
 ## Features
 
@@ -21,11 +21,6 @@ Large-scale graphs such as web graphs, social networks, and citation networks ca
   - Clustering coefficient preservation
   - Path length characteristics
   - Runtime and compression metrics
-
-- **Web-scale compatible:**
-  - Memory-efficient data loading
-  - Specialized algorithms for large graphs
-  - Built-in support for SNAP web graph datasets
 
 ## Installation
 
@@ -186,7 +181,8 @@ The framework implements and builds upon methods from:
 - Loukas, A. (2019). Graph reduction with spectral and cut guarantees.
 - Spielman, D. A., & Srivastava, N. (2011). Graph sparsification by effective resistances.
 - Navlakha, S., Rastogi, R., & Shrivastava, N. (2008). Graph summarization with bounded error.
+- Mitliagkas, I.,et al (2015). FrogWild! -- Fast PageRank Approximations on Graph Engines.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.

@@ -1,7 +1,0 @@
-README.md
-setup.py
-graphsum.egg-info/PKG-INFO
-graphsum.egg-info/SOURCES.txt
-graphsum.egg-info/dependency_links.txt
-graphsum.egg-info/requires.txt
-graphsum.egg-info/top_level.txt
