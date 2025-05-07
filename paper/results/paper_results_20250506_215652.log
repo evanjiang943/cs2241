@@ -1,0 +1,18 @@
+2025-05-06 21:56:52,836 - __main__ - INFO - Starting paper results generation
+2025-05-06 21:56:52,837 - __main__ - INFO - Datasets: ['web-Stanford']
+2025-05-06 21:56:52,837 - __main__ - INFO - Methods: ['collapse']
+2025-05-06 21:56:52,837 - __main__ - INFO - Compression ratios: [0.1]
+2025-05-06 21:56:52,837 - __main__ - INFO - Using paper metrics: False
+2025-05-06 21:56:52,837 - __main__ - INFO - Using spectral metrics: False
+2025-05-06 21:56:52,837 - __main__ - INFO - Processing dataset: web-Stanford
+2025-05-06 21:56:52,837 - graphsum.io.snap - INFO - Dataset already exists at data/web-Stanford.txt
+2025-05-06 21:56:52,837 - graphsum.io.snap - INFO - Loading graph from data/web-Stanford.txt
+2025-05-06 21:56:58,003 - graphsum.io.snap - INFO - Loaded graph with 281903 nodes and 2312497 edges
+2025-05-06 21:56:58,065 - __main__ - INFO - Loaded graph with 281903 nodes and 2312497 edges
+2025-05-06 21:56:58,065 - __main__ - INFO -   Running method: collapse
+2025-05-06 21:56:58,065 - __main__ - INFO -     Compression ratio: 0.1
+2025-05-06 21:56:58,065 - __main__ - INFO -       Run 1/1
+2025-05-06 21:56:58,065 - graphsum.summarizers.community - INFO - Converting directed graph to undirected for community detection
+2025-05-06 21:57:02,094 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
+2025-05-06 21:57:02,156 - graphsum.summarizers.community - INFO - Graph has 281903 nodes and 1992636 edges
+2025-05-06 21:57:02,217 - graphsum.summarizers.community - INFO - Graph density: 0.0000501488
