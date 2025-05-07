@@ -16,3 +16,17 @@
 2025-05-06 21:57:02,094 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
 2025-05-06 21:57:02,156 - graphsum.summarizers.community - INFO - Graph has 281903 nodes and 1992636 edges
 2025-05-06 21:57:02,217 - graphsum.summarizers.community - INFO - Graph density: 0.0000501488
+2025-05-06 22:12:47,428 - graphsum.summarizers.community - INFO - Community detection completed in 949.36 seconds
+2025-05-06 22:12:47,433 - graphsum.summarizers.community - INFO - Detected 744 communities
+2025-05-06 22:12:50,371 - graphsum.summarizers.community - INFO - Summary graph created in 2.94 seconds
+2025-05-06 22:12:50,371 - graphsum.summarizers.community - INFO - Summary: 744 nodes, 1274 edges
+2025-05-06 22:12:50,371 - __main__ - INFO -   Summary created with 744 nodes and 1274 edges in 952.31 seconds
+2025-05-06 22:12:50,371 - __main__ - INFO -   Running standard evaluation metrics
+2025-05-06 22:12:50,371 - graphsum.evaluation.evaluator - INFO - Running comprehensive evaluation of graph summary
+2025-05-06 22:12:50,371 - graphsum.evaluation.evaluator - INFO - Evaluating PageRank preservation
+2025-05-06 22:12:55,149 - graphsum.evaluation.evaluator - INFO - Evaluating centrality preservation
+2025-05-06 22:13:02,077 - graphsum.evaluation.evaluator - INFO - Evaluating community structure preservation
+2025-05-06 22:13:02,078 - graphsum.evaluation.evaluator - WARNING - Large graph detected, using simplified community evaluation
+2025-05-06 22:13:02,107 - __main__ - ERROR - Error in run 1: Bad graph type, use only non directed graph
+2025-05-06 22:13:02,111 - __main__ - WARNING - No results were collected.
+2025-05-06 22:13:02,111 - __main__ - INFO - Paper results generation complete
