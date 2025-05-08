@@ -29,7 +29,7 @@ sys.path.insert(0, project_dir)
 from graphsum.summarizers.community import CommunityBasedSummarizer
 from graphsum.summarizers.spectral_sparsifier import SpectralSparsifier
 from graphsum.summarizers.spectral_coarsener import SpectralCoarsener
-from graphsum.evaluation.evaluator import GraphEvaluator
+# GraphEvaluator import removed - now using Metrics directly
 from graphsum.evaluation.metrics import Metrics
 from graphsum.io.snap import (
     download_snap_dataset, 
