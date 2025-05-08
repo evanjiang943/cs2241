@@ -1,9 +1,3 @@
-"""Spectral coarsening-based graph summarization.
-
-This module implements graph summarization techniques that preserve 
-spectral properties of the graph via coarsening (node reduction).
-"""
-
 import networkx as nx
 import numpy as np
 import logging
@@ -13,7 +7,6 @@ from sklearn.cluster import KMeans
 from .base import GraphSummarizer
 
 logger = logging.getLogger(__name__)
-
 
 class SpectralCoarsener(GraphSummarizer):
     """
@@ -44,9 +37,10 @@ class SpectralCoarsener(GraphSummarizer):
             reduction_factor (float): Target size reduction factor (0-1)
             **kwargs: Additional parameters:
                 n_eigenvectors (int): Number of eigenvectors to use (overrides init)
+                normalized (bool): Whether to use normalized Laplacian
                 weight (str): Edge weight attribute to use
                 normalized (bool): Whether to use normalized Laplacian
-                
+                normalized (bool): Whether to use normalized Laplacian
         Returns:
             nx.Graph: The coarsened graph
         """
@@ -71,19 +65,25 @@ class SpectralCoarsener(GraphSummarizer):
         
         # Compute Laplacian matrix
         logger.info("Computing graph Laplacian")
-        if normalized:
-            laplacian = nx.normalized_laplacian_matrix(graph_for_laplacian)
-        else:
-            laplacian = nx.laplacian_matrix(graph_for_laplacian)
+        laplacian = (nx.normalized_laplacian_matrix(graph_for_laplacian)
+                     if normalized else nx.laplacian_matrix(graph_for_laplacian))
         
         # Compute eigenvectors (using sparse eigensolvers for large graphs)
-        logger.info("Computing eigenvectors")
-        if n_original > 5000:  # Large graph
-            # For large graphs, we use sparse eigensolvers and compute only the needed eigenvectors
-            k = min(n_summary * 2, n_original - 1) if n_eigenvectors is None else n_eigenvectors
-            eigenvalues, eigenvectors = sp.linalg.eigsh(laplacian, k=k, which='SM')
+        if n_original > 5000:
+            logger.info("Using sparse lobpcg eigensolver for large graph")
+            lap_csr = laplacian.tocsr()
+            # determine k
+            k = (min(n_summary, lap_csr.shape[0] - 1)
+                 if n_eigenvectors is None else min(n_eigenvectors, lap_csr.shape[0] - 1))
+            init_vecs = np.random.rand(lap_csr.shape[0], k)
+            eigenvalues, eigenvectors = sp.linalg.lobpcg(
+                lap_csr,
+                init_vecs,
+                # tol=1e-2,
+                maxiter=500
+            )
         else:
-            # For smaller graphs, compute all eigenvectors
+            logger.info("Using dense eigensolver for small graph")
             eigenvalues, eigenvectors = np.linalg.eigh(laplacian.todense())
         
         # Sort eigenvectors by eigenvalues (ascending)
@@ -96,11 +96,8 @@ class SpectralCoarsener(GraphSummarizer):
         
         # Determine number of eigenvectors to use for clustering
         if n_eigenvectors is None:
-            # Use enough eigenvectors to capture the main graph structure
-            # Skip the first eigenvector (constant)
-            k = min(n_summary * 2, eigenvectors.shape[1] - 1)
+            k = min(n_summary, eigenvectors.shape[1] - 1)
         else:
-            # Use specified number, but ensure we don't exceed what we have
             k = min(n_eigenvectors, eigenvectors.shape[1] - 1)
         
         # Create feature matrix for clustering from the first k non-trivial eigenvectors
@@ -109,11 +106,14 @@ class SpectralCoarsener(GraphSummarizer):
         # Cluster nodes based on spectral features
         self._start_timer()
         logger.info(f"Clustering {n_original} nodes into {n_summary} clusters using {k} eigenvectors")
-        
-        # Use k-means for clustering
-        kmeans = KMeans(n_clusters=n_summary, random_state=42, n_init=10)
+        kmeans = KMeans(
+            n_clusters=n_summary,
+            random_state=42,
+            n_init=3,
+            max_iter=100,
+            tol=1e-3
+        )
         clusters = kmeans.fit_predict(features)
-        
         clustering_time = self._stop_timer('clustering')
         logger.info(f"Clustering completed in {clustering_time:.2f} seconds")
         
@@ -124,70 +124,41 @@ class SpectralCoarsener(GraphSummarizer):
         # Create node mappings
         nodes = list(graph.nodes())
         for i, node in enumerate(nodes):
-            cluster_id = int(clusters[i])
-            self.node_mapping[node] = cluster_id
-            
-            if cluster_id not in self.reverse_mapping:
-                self.reverse_mapping[cluster_id] = []
-            self.reverse_mapping[cluster_id].append(node)
+            cid = int(clusters[i])
+            self.node_mapping[node] = cid
+            self.reverse_mapping.setdefault(cid, []).append(node)
         
         # Add nodes to summary graph with size attributes
-        for cluster_id, members in self.reverse_mapping.items():
-            self.summary_graph.add_node(
-                cluster_id, 
-                size=len(members),
-                members=len(members)
-            )
+        for cid, members in self.reverse_mapping.items():
+            self.summary_graph.add_node(cid, size=len(members), members=len(members))
         
         # Add weighted edges
-        edge_count = 0
         for u, v, data in graph.edges(data=True):
-            u_summary = self.node_mapping.get(u)
-            v_summary = self.node_mapping.get(v)
-            
-            # Skip nodes that weren't clustered
-            if u_summary is None or v_summary is None:
+            cu = self.node_mapping.get(u)
+            cv = self.node_mapping.get(v)
+            if cu is None or cv is None or cu == cv:
                 continue
-                
-            # Self-loops represent internal cluster edges
-            if u_summary == v_summary:
-                continue  # We'll handle internal edges separately
-                
-            edge_weight = data.get('weight', 1.0)
-            
-            if self.summary_graph.has_edge(u_summary, v_summary):
-                self.summary_graph[u_summary][v_summary]['weight'] += edge_weight
-                self.summary_graph[u_summary][v_summary]['count'] += 1
+            w = data.get('weight', 1.0)
+            if self.summary_graph.has_edge(cu, cv):
+                self.summary_graph[cu][cv]['weight'] += w
+                self.summary_graph[cu][cv]['count'] += 1
             else:
-                self.summary_graph.add_edge(
-                    u_summary, v_summary, 
-                    weight=edge_weight,
-                    count=1
-                )
-            edge_count += 1
+                self.summary_graph.add_edge(cu, cv, weight=w, count=1)
         
         # Add internal edge counts as node attributes
-        for cluster_id in self.summary_graph.nodes():
-            members = self.reverse_mapping[cluster_id]
-            internal_edges = graph.subgraph(members).number_of_edges()
-            # Add attribute for internal edges
-            self.summary_graph.nodes[cluster_id]['internal_edges'] = internal_edges
+        for cid in self.summary_graph.nodes():
+            members = self.reverse_mapping[cid]
+            self.summary_graph.nodes[cid]['internal_edges'] = graph.subgraph(members).number_of_edges()
         
         # Normalize edge weights by potential connections
-        for u, v, data in self.summary_graph.edges(data=True):
-            u_size = len(self.reverse_mapping[u])
-            v_size = len(self.reverse_mapping[v])
-            max_possible_edges = u_size * v_size
-            
-            # Add normalization info to edge
-            data['max_connections'] = max_possible_edges
-            if max_possible_edges > 0:
-                data['density'] = data['count'] / max_possible_edges
-            else:
-                data['density'] = 0
+        for u, v, d in self.summary_graph.edges(data=True):
+            usz, vsz = len(self.reverse_mapping[u]), len(self.reverse_mapping[v])
+            max_conn = usz * vsz
+            d['max_connections'] = max_conn
+            d['density'] = (d['count'] / max_conn) if max_conn > 0 else 0
         
-        summary_creation_time = self._stop_timer('summary_creation')
-        logger.info(f"Coarsened graph created in {summary_creation_time:.2f} seconds")
+        summary_time = self._stop_timer('summary_creation')
+        logger.info(f"Coarsened graph created in {summary_time:.2f} seconds")
         logger.info(f"Coarsened summary: {self.summary_graph.number_of_nodes()} nodes, {self.summary_graph.number_of_edges()} edges")
         
         return self.summary_graph
