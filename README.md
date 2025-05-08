@@ -58,13 +58,8 @@ pip install -e .
 ## Quick Start
 
 ```bash
-# Run demo on karate-club dataset using community method
-python quickstart/demo_community.py
-```
-
-```bash
-# Run demo on karate-club dataset using spectral method
-python quickstart/demo_spectral.py
+# Run the quickstart demo
+python quickstart/quickstart.py
 ```
 
 ## Working with Web-Scale Graphs
@@ -76,8 +71,15 @@ python -m graphsum.io.snap list
 # Download a dataset
 python -m graphsum.io.snap download web-Stanford data/
 
-# Run experiments
-python scripts/run_experiment.py --dataset web-Stanford --methods community spectral --reductions 0.1 0.2 0.3
+# Run experiments (using the three summarization methods)
+python scripts/run.py --datasets web-Stanford --methods sparsifier collapse coarsener --compression-ratios 0.1 0.2
+
+# For memory-intensive datasets, use the memory-efficient flag
+python scripts/run.py \
+  --datasets web-NotreDame \
+  --methods collapse \
+  --compression-ratios 0.01 \
+  --memory-efficient
 ```
 
 ## Web Graph Demo
@@ -95,15 +97,17 @@ graph_summarization/
 │   ├── summarizers/           # Summarization algorithms
 │   │   ├── base.py            # Base summarizer class
 │   │   ├── community.py       # Community-based summarization
-│   │   ├── spectral.py        # Spectral summarization
+│   │   ├── spectral_sparsifier.py # Spectral sparsification
+│   │   ├── spectral_coarsener.py  # Spectral coarsening
 │   ├── evaluation/            # Evaluation metrics
 │   │   ├── evaluator.py       # Main evaluation class
+│   │   ├── metrics.py         # Core metrics implementation
 │   ├── io/                    # Input/output utilities
 │   │   ├── snap.py            # SNAP dataset loader
 ├── scripts/                   # CLI scripts
-│   ├── run_experiment.py      # Main experiment runner
-├── examples/                  # Example usage
-│   ├── webgraph_demo.py       # Demo on web-scale graph
+│   ├── run.py                 # Main experiment runner
+├── quickstart/                # Quickstart examples
+│   ├── quickstart.py          # Simple demo
 ├── data/                      # Dataset directory
 ├── results/                   # Results directory
 ```
@@ -135,31 +139,27 @@ class MyCustomSummarizer(GraphSummarizer):
 
 ## Evaluation Metrics
 
-The `GraphEvaluator` provides comprehensive metrics to assess summary quality:
+The framework uses five core metrics to evaluate graph summaries:
 
-- **PageRank Preservation:**
-  - Spearman/Kendall correlation
-  - Top-k node overlap
-  - L1 error
+- **Spectral Approximation Error:**
+  - Measures how well the summary preserves spectral properties of the original graph
+  - Quantifies the difference between the eigenvalues of the original and summary graphs
 
-- **Centrality Preservation:**
-  - Degree and eigenvector centrality correlation
+- **Community Structure Preservation:**
+  - Normalized Mutual Information (NMI) comparing original and summary communities
+  - Measures how well community structure is preserved in the summary
 
-- **Community Structure:**
-  - NMI/ARI metrics comparing original and summary communities
+- **Distance Distortion (Average Stretch):**
+  - Measures how well the summary preserves distances between nodes
+  - Calculated as the average multiplicative increase in distances
 
-- **Degree Distribution:**
-  - KL divergence between distributions
-  - Correlation of node degree values
+- **Centrality Retention (Precision@k):**
+  - Measures how well the summary preserves the most important nodes
+  - Calculated as the overlap between top-k nodes in original and summary graphs
 
-- **Clustering and Path Metrics:**
-  - Clustering coefficient comparison
-  - Characteristic path length ratio
-  - Diameter comparison
-
-- **Performance:**
-  - Compression ratios
-  - Runtime improvements
+- **Compression Ratio:**
+  - Quantifies the size reduction achieved by the summarization
+  - Calculated as the ratio of summary size to original graph size
 
 ## References
 
