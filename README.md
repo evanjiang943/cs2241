@@ -57,9 +57,11 @@ pip install -e .
 
 ## Quick Start
 
+To quickly run experiments on a sample dataset:
+
 ```bash
-# Run the quickstart demo
-python quickstart/quickstart.py
+# Run a simple experiment on a small dataset
+python scripts/run.py --datasets web-NotreDame --methods collapse --compression-ratios 0.1
 ```
 
 ## Working with Web-Scale Graphs
@@ -106,8 +108,7 @@ graph_summarization/
 │   │   ├── snap.py            # SNAP dataset loader
 ├── scripts/                   # CLI scripts
 │   ├── run.py                 # Main experiment runner
-├── quickstart/                # Quickstart examples
-│   ├── quickstart.py          # Simple demo
+
 ├── data/                      # Dataset directory
 ├── results/                   # Results directory
 ```
