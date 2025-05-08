@@ -138,7 +138,7 @@ def run_single_experiment(graph, method, compression_ratio, logger):
     # Evaluate with the five core metrics
     logger.info("  Running core metrics evaluation")
     
-    # Use Metrics directly to ensure we get all five core metrics
+    # Use Metrics directly to get all five core metrics
     metrics_results = Metrics.evaluate_all(
         graph, 
         summary_graph, 
@@ -147,20 +147,6 @@ def run_single_experiment(graph, method, compression_ratio, logger):
         k_centrality=50
     )
     result.update(metrics_results)
-    
-    # For backward compatibility, also run through the evaluator
-    # This ensures any additional processing in the evaluator is maintained
-    evaluator = GraphEvaluator(
-        graph, 
-        summary_graph, 
-        summarizer.node_mapping, 
-        summarizer.reverse_mapping
-    )
-    evaluation = evaluator.evaluate_all(top_k=50)
-    # Only update with evaluator results that don't conflict with core metrics
-    for key, value in evaluation.items():
-        if key not in metrics_results:
-            result[key] = value
     
     # Add experiment metadata
     result['method'] = method

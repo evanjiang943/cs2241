@@ -44,6 +44,12 @@ class Metrics:
         Returns:
             float: The spectral approximation error
         """
+        
+        # Validate input graphs
+        if original_graph.number_of_nodes() == 0 or summary_graph.number_of_nodes() == 0:
+            logger.warning("Empty graph detected in spectral approximation error calculation")
+            return float('nan')
+            
         # Convert directed graphs to undirected for Laplacian computation
         if isinstance(original_graph, nx.DiGraph):
             orig_graph = original_graph.to_undirected()
@@ -55,14 +61,47 @@ class Metrics:
         else:
             summ_graph = summary_graph
             
-        try:
-            # Compute normalized Laplacians
-            l_orig = nx.normalized_laplacian_matrix(orig_graph).todense()
-            l_summ = nx.normalized_laplacian_matrix(summ_graph).todense()
+        # Ensure both graphs have at least k+1 nodes
+        actual_k = min(k, orig_graph.number_of_nodes() - 1, summ_graph.number_of_nodes() - 1)
+        if actual_k <= 0:
+            logger.warning("Insufficient nodes for spectral approximation error calculation")
+            return float('nan')
             
-            # Compute eigenvalues
-            evals_orig = np.linalg.eigvalsh(l_orig)
-            evals_summ = np.linalg.eigvalsh(l_summ)
+        try:
+            # For larger graphs, use sparse matrix computation with scipy.sparse.linalg
+            if orig_graph.number_of_nodes() > 1000 or summ_graph.number_of_nodes() > 1000:
+                try:
+                    from scipy import sparse
+                    from scipy.sparse.linalg import eigsh
+                    
+                    # Compute normalized Laplacians as sparse matrices
+                    l_orig = nx.normalized_laplacian_matrix(orig_graph)
+                    l_summ = nx.normalized_laplacian_matrix(summ_graph)
+                    
+                    # Compute only the k+1 smallest eigenvalues (more efficient)
+                    # Add 1 to account for the smallest eigenvalue (0)
+                    k_to_compute = min(actual_k + 1, orig_graph.number_of_nodes() - 1)
+                    evals_orig = eigsh(l_orig, k=k_to_compute, which='SM', return_eigenvectors=False)
+                    
+                    k_to_compute = min(actual_k + 1, summ_graph.number_of_nodes() - 1)
+                    evals_summ = eigsh(l_summ, k=k_to_compute, which='SM', return_eigenvectors=False)
+                except Exception as sparse_error:
+                    logger.warning(f"Sparse eigenvalue calculation failed: {sparse_error}. Falling back to dense method.")
+                    # Fall back to dense calculation
+                    l_orig = nx.normalized_laplacian_matrix(orig_graph).todense()
+                    l_summ = nx.normalized_laplacian_matrix(summ_graph).todense()
+                    
+                    # Compute all eigenvalues
+                    evals_orig = np.linalg.eigvalsh(l_orig)
+                    evals_summ = np.linalg.eigvalsh(l_summ)
+            else:
+                # For smaller graphs, use standard dense computation
+                l_orig = nx.normalized_laplacian_matrix(orig_graph).todense()
+                l_summ = nx.normalized_laplacian_matrix(summ_graph).todense()
+                
+                # Compute all eigenvalues
+                evals_orig = np.linalg.eigvalsh(l_orig)
+                evals_summ = np.linalg.eigvalsh(l_summ)
             
             # Sort eigenvalues
             evals_orig = np.sort(evals_orig)
@@ -70,21 +109,31 @@ class Metrics:
             
             # Skip the first eigenvalue (which is 0 for connected graphs)
             # and take the next k values
-            k_orig = min(k+1, len(evals_orig)-1)
-            k_summ = min(k+1, len(evals_summ)-1)
+            k_orig = min(actual_k, len(evals_orig)-1)
+            k_summ = min(actual_k, len(evals_summ)-1)
             
-            evals_orig = evals_orig[1:k_orig+1]  # Starting from index 1 (skip 0)
-            evals_summ = evals_summ[1:k_summ+1]  # Starting from index 1 (skip 0)
+            # Skip the first (smallest) eigenvalue, which should be close to 0
+            evals_orig = evals_orig[1:k_orig+1]
+            evals_summ = evals_summ[1:k_summ+1]
             
-            # Take min length
+            # Take the minimum length to ensure we compare the same number of eigenvalues
             min_k = min(len(evals_orig), len(evals_summ))
+            if min_k == 0:
+                logger.warning("No eigenvalues to compare after filtering")
+                return float('nan')
+                
             evals_orig = evals_orig[:min_k]
             evals_summ = evals_summ[:min_k]
             
-            # Compute relative error
-            rel_errors = np.abs(evals_summ - evals_orig) / np.maximum(evals_orig, 1e-10)
+            # Prevent division by zero with a small epsilon
+            epsilon = 1e-10
+            # Compute relative error with better numerical stability
+            rel_errors = np.abs(evals_summ - evals_orig) / (np.abs(evals_orig) + epsilon)
+            
+            # Calculate the mean relative error
             spectral_error = np.mean(rel_errors)
             
+            logger.info(f"Spectral approximation error: {spectral_error:.6f}")
             return spectral_error
         
         except Exception as e:
