@@ -1,0 +1,27 @@
+2025-05-08 15:44:42,237 - __main__ - INFO - Starting paper results generation
+2025-05-08 15:44:42,237 - __main__ - INFO - Datasets: ['web-NotreDame']
+2025-05-08 15:44:42,237 - __main__ - INFO - Methods: ['collapse']
+2025-05-08 15:44:42,237 - __main__ - INFO - Compression ratios: [0.01]
+2025-05-08 15:44:42,237 - __main__ - INFO - Using core metrics for all evaluations
+2025-05-08 15:44:42,237 - __main__ - INFO - Processing dataset: web-NotreDame
+2025-05-08 15:44:42,237 - graphsum.io.snap - INFO - Dataset already exists at data/web-NotreDame.txt
+2025-05-08 15:44:42,237 - graphsum.io.snap - INFO - Loading graph from data/web-NotreDame.txt
+2025-05-08 15:44:42,237 - graphsum.io.snap - INFO - Counting lines in edge list file...
+2025-05-08 15:44:42,418 - graphsum.io.snap - INFO - Reading edges...
+2025-05-08 15:44:44,770 - graphsum.io.snap - INFO - Loaded graph with 325729 nodes and 1497134 edges
+2025-05-08 15:44:44,820 - __main__ - INFO - Loaded graph with 325729 nodes and 1497134 edges
+2025-05-08 15:44:44,821 - __main__ - INFO -   Running method: collapse
+2025-05-08 15:44:44,821 - __main__ - INFO -     Compression ratio: 0.01
+2025-05-08 15:44:44,821 - __main__ - INFO -       Run 1/1
+2025-05-08 15:44:44,821 - graphsum.summarizers.community - INFO - Converting directed graph to undirected for community detection
+2025-05-08 15:44:47,552 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
+2025-05-08 15:44:47,607 - graphsum.summarizers.community - INFO - Graph has 325729 nodes and 1117563 edges
+2025-05-08 15:44:47,658 - graphsum.summarizers.community - INFO - Graph density: 0.0000210664
+2025-05-08 15:47:13,923 - graphsum.summarizers.community - INFO - Community detection completed in 149.10 seconds
+2025-05-08 15:47:13,927 - graphsum.summarizers.community - INFO - Detected 570 communities
+2025-05-08 15:47:16,801 - graphsum.summarizers.community - INFO - Summary graph created in 2.87 seconds
+2025-05-08 15:47:16,802 - graphsum.summarizers.community - INFO - Summary: 570 nodes, 2296 edges
+2025-05-08 15:47:16,802 - __main__ - INFO -   Summary created with 570 nodes and 2296 edges in 151.98 seconds
+2025-05-08 15:47:16,802 - __main__ - INFO -   Running core metrics evaluation
+2025-05-08 15:47:16,802 - graphsum.evaluation.metrics - INFO - Running metrics evaluation
+2025-05-08 15:47:16,802 - graphsum.evaluation.metrics - INFO - Computing spectral approximation error

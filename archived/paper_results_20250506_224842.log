@@ -1,0 +1,41 @@
+2025-05-06 22:48:42,127 - __main__ - INFO - Starting paper results generation
+2025-05-06 22:48:42,128 - __main__ - INFO - Datasets: ['web-NotreDame']
+2025-05-06 22:48:42,128 - __main__ - INFO - Methods: ['collapse', 'sparsifier', 'coarsener']
+2025-05-06 22:48:42,128 - __main__ - INFO - Compression ratios: [0.01]
+2025-05-06 22:48:42,128 - __main__ - INFO - Using paper metrics: True
+2025-05-06 22:48:42,128 - __main__ - INFO - Using spectral metrics: False
+2025-05-06 22:48:42,128 - __main__ - INFO - Processing dataset: web-NotreDame
+2025-05-06 22:48:42,128 - graphsum.io.snap - INFO - Downloading web-NotreDame from SNAP...
+2025-05-06 22:48:44,017 - graphsum.io.snap - INFO - Extracting data/web-NotreDame.txt.gz...
+2025-05-06 22:48:44,130 - graphsum.io.snap - INFO - Dataset saved to data/web-NotreDame.txt
+2025-05-06 22:48:44,130 - graphsum.io.snap - INFO - Loading graph from data/web-NotreDame.txt
+2025-05-06 22:48:46,777 - graphsum.io.snap - INFO - Loaded graph with 325729 nodes and 1497134 edges
+2025-05-06 22:48:46,826 - __main__ - INFO - Loaded graph with 325729 nodes and 1497134 edges
+2025-05-06 22:48:46,826 - __main__ - INFO -   Running method: collapse
+2025-05-06 22:48:46,826 - __main__ - INFO -     Compression ratio: 0.01
+2025-05-06 22:48:46,826 - __main__ - INFO -       Run 1/1
+2025-05-06 22:48:46,826 - graphsum.summarizers.community - INFO - Converting directed graph to undirected for community detection
+2025-05-06 22:48:49,560 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
+2025-05-06 22:48:49,613 - graphsum.summarizers.community - INFO - Graph has 325729 nodes and 1117563 edges
+2025-05-06 22:48:49,664 - graphsum.summarizers.community - INFO - Graph density: 0.0000210664
+2025-05-06 22:51:16,191 - graphsum.summarizers.community - INFO - Community detection completed in 149.36 seconds
+2025-05-06 22:51:16,194 - graphsum.summarizers.community - INFO - Detected 570 communities
+2025-05-06 22:51:18,276 - graphsum.summarizers.community - INFO - Summary graph created in 2.08 seconds
+2025-05-06 22:51:18,276 - graphsum.summarizers.community - INFO - Summary: 570 nodes, 2296 edges
+2025-05-06 22:51:18,276 - __main__ - INFO -   Summary created with 570 nodes and 2296 edges in 151.45 seconds
+2025-05-06 22:51:18,276 - __main__ - INFO -   Running standard evaluation metrics
+2025-05-06 22:51:18,276 - graphsum.evaluation.evaluator - INFO - Running comprehensive evaluation of graph summary
+2025-05-06 22:51:18,276 - graphsum.evaluation.evaluator - INFO - Evaluating PageRank preservation
+2025-05-06 22:51:21,027 - graphsum.evaluation.evaluator - INFO - Evaluating centrality preservation
+2025-05-06 22:51:23,477 - graphsum.evaluation.evaluator - INFO - Evaluating community structure preservation
+2025-05-06 22:51:23,477 - graphsum.evaluation.evaluator - WARNING - Large graph detected, using simplified community evaluation
+2025-05-06 22:51:23,503 - __main__ - ERROR - Error in run 1: Bad graph type, use only non directed graph
+2025-05-06 22:51:23,509 - __main__ - INFO -   Running method: sparsifier
+2025-05-06 22:51:23,509 - __main__ - INFO -     Compression ratio: 0.01
+2025-05-06 22:51:23,509 - __main__ - INFO -       Run 1/1
+2025-05-06 22:51:23,509 - graphsum.summarizers.spectral - INFO - Creating spectral summary with 3257 nodes (reduction=0.01)
+2025-05-06 22:51:23,510 - graphsum.summarizers.spectral - INFO - Converting directed graph to undirected for spectral analysis
+2025-05-06 22:51:26,049 - graphsum.summarizers.spectral - INFO - Computing graph Laplacian
+2025-05-06 22:51:28,631 - graphsum.summarizers.spectral - INFO - Computing eigenvectors
+2025-05-06 23:03:41,517 - graphsum.summarizers.spectral - INFO - Spectral computation completed in 738.01 seconds
+2025-05-06 23:03:41,518 - graphsum.summarizers.spectral - INFO - Clustering 325729 nodes into 3257 clusters using 9 eigenvectors

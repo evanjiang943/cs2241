@@ -1,0 +1,38 @@
+2025-05-06 23:07:38,333 - __main__ - INFO - Starting paper results generation
+2025-05-06 23:07:38,333 - __main__ - INFO - Datasets: ['web-NotreDame']
+2025-05-06 23:07:38,333 - __main__ - INFO - Methods: ['collapse', 'sparsifier', 'coarsener']
+2025-05-06 23:07:38,333 - __main__ - INFO - Compression ratios: [0.01]
+2025-05-06 23:07:38,333 - __main__ - INFO - Using paper metrics: True
+2025-05-06 23:07:38,333 - __main__ - INFO - Using spectral metrics: False
+2025-05-06 23:07:38,333 - __main__ - INFO - Processing dataset: web-NotreDame
+2025-05-06 23:07:38,333 - graphsum.io.snap - INFO - Dataset already exists at data/web-NotreDame.txt
+2025-05-06 23:07:38,333 - graphsum.io.snap - INFO - Loading graph from data/web-NotreDame.txt
+2025-05-06 23:07:41,332 - graphsum.io.snap - INFO - Loaded graph with 325729 nodes and 1497134 edges
+2025-05-06 23:07:41,382 - __main__ - INFO - Loaded graph with 325729 nodes and 1497134 edges
+2025-05-06 23:07:41,382 - __main__ - INFO -   Running method: collapse
+2025-05-06 23:07:41,382 - __main__ - INFO -     Compression ratio: 0.01
+2025-05-06 23:07:41,382 - __main__ - INFO -       Run 1/1
+2025-05-06 23:07:41,382 - graphsum.summarizers.community - INFO - Converting directed graph to undirected for community detection
+2025-05-06 23:07:44,181 - graphsum.summarizers.community - INFO - Detecting communities using Louvain method (resolution=1.0)
+2025-05-06 23:07:44,235 - graphsum.summarizers.community - INFO - Graph has 325729 nodes and 1117563 edges
+2025-05-06 23:07:44,287 - graphsum.summarizers.community - INFO - Graph density: 0.0000210664
+2025-05-06 23:10:04,402 - graphsum.summarizers.community - INFO - Community detection completed in 143.02 seconds
+2025-05-06 23:10:04,405 - graphsum.summarizers.community - INFO - Detected 570 communities
+2025-05-06 23:10:06,475 - graphsum.summarizers.community - INFO - Summary graph created in 2.07 seconds
+2025-05-06 23:10:06,476 - graphsum.summarizers.community - INFO - Summary: 570 nodes, 2296 edges
+2025-05-06 23:10:06,476 - __main__ - INFO -   Summary created with 570 nodes and 2296 edges in 145.09 seconds
+2025-05-06 23:10:06,476 - __main__ - INFO -   Running standard evaluation metrics
+2025-05-06 23:10:06,476 - graphsum.evaluation.evaluator - INFO - Running comprehensive evaluation of graph summary
+2025-05-06 23:10:06,476 - graphsum.evaluation.evaluator - INFO - Evaluating PageRank preservation
+2025-05-06 23:10:08,909 - graphsum.evaluation.evaluator - INFO - Evaluating centrality preservation
+2025-05-06 23:10:11,316 - graphsum.evaluation.evaluator - INFO - Evaluating community structure preservation
+2025-05-06 23:10:11,316 - graphsum.evaluation.evaluator - WARNING - Large graph detected, using simplified community evaluation
+2025-05-06 23:10:11,339 - graphsum.evaluation.evaluator - INFO - Converting directed subgraph to undirected for community detection
+2025-05-06 23:10:12,715 - graphsum.evaluation.evaluator - INFO - Evaluating degree distribution preservation
+2025-05-06 23:10:12,983 - graphsum.evaluation.evaluator - INFO - Evaluating clustering coefficient preservation
+2025-05-06 23:10:13,591 - graphsum.evaluation.evaluator - INFO - Evaluating path length preservation
+2025-05-06 23:11:42,336 - graphsum.evaluation.evaluator - INFO - Evaluating compression and runtime metrics
+2025-05-06 23:11:44,750 - graphsum.evaluation.evaluator - INFO - Evaluation completed in 2.41 seconds
+2025-05-06 23:11:44,751 - __main__ - INFO -   Running paper-specific metrics
+2025-05-06 23:11:44,751 - graphsum.evaluation.paper_metrics - INFO - Running paper metrics evaluation
+2025-05-06 23:11:44,751 - graphsum.evaluation.paper_metrics - INFO - Computing spectral approximation error
