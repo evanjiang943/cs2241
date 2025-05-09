@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 import logging
 import scipy.sparse as sp
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans
 
 from .base import GraphSummarizer
 
@@ -106,14 +106,18 @@ class SpectralCoarsener(GraphSummarizer):
         # Cluster nodes based on spectral features
         self._start_timer()
         logger.info(f"Clustering {n_original} nodes into {n_summary} clusters using {k} eigenvectors")
-        kmeans = KMeans(
+
+        kmeans = MiniBatchKMeans(
             n_clusters=n_summary,
-            random_state=42,
+            batch_size=100_000,
+            max_iter=300,
+            tol=1e-3,
             n_init=3,
-            max_iter=100,
-            tol=1e-3
+            random_state=42
         )
+
         clusters = kmeans.fit_predict(features)
+
         clustering_time = self._stop_timer('clustering')
         logger.info(f"Clustering completed in {clustering_time:.2f} seconds")
         

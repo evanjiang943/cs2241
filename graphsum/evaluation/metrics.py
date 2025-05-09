@@ -7,45 +7,126 @@ from sklearn.metrics import normalized_mutual_info_score
 import random
 import time
 import community as community_louvain
+from scipy.sparse.linalg import eigsh
+from networkx.algorithms.community import asyn_lpa_communities
 
 logger = logging.getLogger(__name__)
 
 class Metrics:
-    """Implements the five core metrics for evaluating graph summarization quality."""
-    
+    _cache = {}
+
+    def _sample_graph(G, n=10000, seed=42):
+        if G.number_of_nodes() <= n:
+            return G
+        rng = random.Random(seed)
+        nodes = rng.sample(list(G.nodes()), n)
+        return G.subgraph(nodes).copy()
+
     @staticmethod
-    def spectral_approximation_error(original_graph, summary_graph, node_mapping=None, k=50):
-        logger.info("Starting spectral_approximation_error computation (k=%d)", k)
-        try:
-            orig_graph = original_graph.to_undirected() if isinstance(original_graph, nx.DiGraph) else original_graph
-            summ_graph = summary_graph.to_undirected()  if isinstance(summary_graph, nx.DiGraph)    else summary_graph
-            logger.info("Converted graphs to undirected for Laplacian")
+    def spectral_approximation_error(original_graph, summary_graph, node_mapping=None, k=50, sample_size=10000):
+        orig_graph = original_graph.to_undirected() if isinstance(original_graph, nx.DiGraph) else original_graph
+        summ_graph = summary_graph.to_undirected()  if isinstance(summary_graph, nx.DiGraph) else summary_graph
+        logger.info("Converted graphs to undirected for Laplacian")
+        
+        # 1) maybe sample
+        def sample(G):
+            return G if G.number_of_nodes() <= sample_size else Metrics._sample_graph(G, sample_size)
+        G_o, G_s = sample(orig_graph), sample(summ_graph)
 
-            l_orig = nx.normalized_laplacian_matrix(orig_graph).todense()
-            l_summ = nx.normalized_laplacian_matrix(summ_graph).todense()
-            logger.info("Computed normalized Laplacian matrices")
+        # 2) cache orig eigenvalues
+        key = (id(G_o), k)
+        if key not in Metrics._cache:
+            L_o = nx.normalized_laplacian_matrix(G_o)
+            e_o, _ = eigsh(L_o, k=min(k, G_o.number_of_nodes()-2)+1, which='SM', tol=1e-3)
+            Metrics._cache[key] = np.sort(e_o)[1:]
+        e_o = Metrics._cache[key]
 
-            evals_orig = np.sort(np.linalg.eigvalsh(l_orig))
-            evals_summ = np.sort(np.linalg.eigvalsh(l_summ))
-            logger.info("Eigenvalues computed and sorted")
+        # 3) compute summary eigenvalues
+        L_s = nx.normalized_laplacian_matrix(G_s)
+        e_s, _ = eigsh(L_s, k=min(k, G_s.number_of_nodes()-2)+1, which='SM', tol=1e-3)
+        e_s = np.sort(e_s)[1:]
 
-            k_orig = min(k+1, len(evals_orig)-1)
-            k_summ = min(k+1, len(evals_summ)-1)
-            evals_orig = evals_orig[1:k_orig+1]
-            evals_summ = evals_summ[1:k_summ+1]
-            min_k = min(len(evals_orig), len(evals_summ))
-            evals_orig, evals_summ = evals_orig[:min_k], evals_summ[:min_k]
-            logger.info("Using %d eigenvalues for error computation", min_k)
-
-            rel_errors = np.abs(evals_summ - evals_orig) / np.maximum(evals_orig, 1e-10)
-            spectral_error = float(np.mean(rel_errors))
-            logger.info("Spectral approximation error: %f", spectral_error)
-            return spectral_error
-
-        except Exception as e:
-            logger.info("Error in spectral_approximation_error: %s", e)
+        # 4) filter and average
+        m = min(len(e_o), len(e_s))
+        eps = 1e-3
+        mask = e_o[:m] > eps
+        if not mask.any():
             return float('nan')
+        rel = np.abs(e_s[:m][mask] - e_o[:m][mask]) / e_o[:m][mask]
+        spectral_error = float(rel.mean())
+        logger.info("Spectral approximation error: %f", spectral_error)
+        return spectral_error
+
+# class Metrics:
+#     """Implements the five core metrics for evaluating graph summarization quality."""
     
+    # @staticmethod
+    # def spectral_approximation_error(original_graph, summary_graph, node_mapping=None, k=50):
+    #     logger.info("Starting spectral_approximation_error computation (k=%d)", k)
+    #     try:
+    #         orig_graph = original_graph.to_undirected() if isinstance(original_graph, nx.DiGraph) else original_graph
+    #         summ_graph = summary_graph.to_undirected()  if isinstance(summary_graph, nx.DiGraph)    else summary_graph
+    #         logger.info("Converted graphs to undirected for Laplacian")
+
+    #         l_orig = nx.normalized_laplacian_matrix(orig_graph)
+    #         l_summ = nx.normalized_laplacian_matrix(summ_graph)
+    #         logger.info("Computed normalized Laplacian matrices")
+
+    #         # compute the k+1 smallest eigenvalues (including the zero)
+    #         evals_orig, _ = eigsh(l_orig, k=k+1, which='SM', tol=1e-3)
+    #         evals_summ, _ = eigsh(l_summ, k=k+1, which='SM', tol=1e-3)
+    #         logger.info("Eigenvalues computed and sorted")
+
+    #         # sort and drop the trivial zero eigenvalue
+    #         evals_orig = np.sort(evals_orig)[1:]
+    #         evals_summ = np.sort(evals_summ)[1:]
+    #         m = min(len(evals_orig), len(evals_summ))
+    #         eps = 1e-3
+    #         mask = evals_orig[:m] > eps
+    #         if not np.any(mask):
+    #             return float('nan')
+    #         rel = np.abs(evals_summ[:m][mask] - evals_orig[:m][mask]) / evals_orig[:m][mask]
+    #         return float(rel.mean())
+
+    #     except Exception as e:
+    #         logger.info("Error in spectral_approximation_error: %s", e)
+    #         return float('nan')
+        
+
+
+    # def spectral_approximation_error(original_graph, summary_graph, node_mapping=None, k=50):
+    #     try:
+    #         # build sparse Laplacians directly
+    #         L_orig = nx.normalized_laplacian_matrix(original_graph)
+    #         L_summ = nx.normalized_laplacian_matrix(summary_graph)
+
+    #         # compute the k+1 smallest eigenvalues (including the zero)
+    #         evals_orig, _ = eigsh(L_orig, k=k+1, which='SM', tol=1e-3)
+    #         evals_summ, _ = eigsh(L_summ, k=k+1, which='SM', tol=1e-3)
+
+    #         # sort and drop the trivial zero eigenvalue
+    #         evals_orig = np.sort(evals_orig)[1:]
+    #         evals_summ = np.sort(evals_summ)[1:]
+    #         m = min(len(evals_orig), len(evals_summ))
+    #         rel_errors = np.abs(evals_summ[:m] - evals_orig[:m]) / np.maximum(evals_orig[:m], 1e-10)
+    #         return float(rel_errors.mean())
+    #     except Exception as e:
+    #         logger.warning("spectral_approximation_error failed: %s", e)
+    #         return float('nan')
+    @staticmethod
+    def _detect_communities(G, max_louvain=10000, seed=42):
+        """
+        If |G| <= max_louvain, use Louvain; otherwise label‐propagation.
+        Returns a dict node → community_id.
+        """
+        n = G.number_of_nodes()
+        if n <= max_louvain:
+            return community_louvain.best_partition(G, random_state=seed)
+        else:
+            # label-propagation: O(|V|+|E|)
+            parts = asyn_lpa_communities(G, seed=seed)
+            return {node: cid for cid, comm in enumerate(parts) for node in comm}
+        
     @staticmethod
     def community_structure_fidelity(original_graph, summary_graph, node_mapping=None,
                                      original_communities=None, summary_communities=None):
@@ -56,11 +137,10 @@ class Metrics:
 
             if original_communities is None:
                 logger.info("Detecting communities in original graph")
-                original_communities = community_louvain.best_partition(orig_ug, random_state=42)
+                original_communities = Metrics._detect_communities(orig_ug)
             if summary_communities is None:
                 logger.info("Detecting communities in summary graph")
-                summary_communities = community_louvain.best_partition(summ_ug, random_state=42)
-
+                summary_communities = Metrics._detect_communities(summ_ug)
             if node_mapping is None:
                 logger.info("Performing NMI on same-node set (sparsification)")
                 common = set(original_graph) & set(summary_graph)
@@ -92,36 +172,44 @@ class Metrics:
     def distance_distortion(original_graph, summary_graph, node_mapping=None, sample_size=1000):
         logger.info("Starting distance_distortion computation (sample_size=%d)", sample_size)
         try:
-            orig_nodes = list(original_graph.nodes())
-            if len(orig_nodes) > 1000:
-                sample_size = min(sample_size, 1000)
-                logger.info("Large graph, sampling down to %d pairs", sample_size)
+            # Build the list of "surviving" original nodes
+            if node_mapping is None:
+                common_nodes = list(set(original_graph.nodes()) & set(summary_graph.nodes()))
             else:
-                max_pairs = len(orig_nodes)*(len(orig_nodes)-1)//2
-                sample_size = min(sample_size, max_pairs)
-                logger.info("Total possible pairs %d; using sample_size %d", max_pairs, sample_size)
+                # only original nodes that map into an existing summary node
+                common_nodes = [
+                    o for o in original_graph.nodes()
+                    if o in node_mapping and node_mapping[o] in summary_graph
+                ]
 
-            pairs = [tuple(random.sample(orig_nodes, 2)) for _ in range(sample_size)]
+            if len(common_nodes) < 2:
+                logger.info("Too few surviving nodes (%d) for distance_distortion", len(common_nodes))
+                return float('nan')
+
+            # Sample pairs from the surviving set
+            pairs = [tuple(random.sample(common_nodes, 2)) for _ in range(sample_size)]
             stretches = []
 
             for u, v in pairs:
                 if node_mapping is None:
-                    if u in summary_graph and v in summary_graph and nx.has_path(original_graph, u, v) and nx.has_path(summary_graph, u, v):
+                    # both u,v in summary by construction
+                    if nx.has_path(original_graph, u, v) and nx.has_path(summary_graph, u, v):
                         d_orig = nx.shortest_path_length(original_graph, u, v)
                         d_summ = nx.shortest_path_length(summary_graph, u, v)
                         if d_orig > 0:
                             stretches.append(d_summ / d_orig)
                 else:
-                    if u in node_mapping and v in node_mapping:
-                        u_s, v_s = node_mapping[u], node_mapping[v]
-                        if nx.has_path(original_graph, u, v) and nx.has_path(summary_graph, u_s, v_s):
-                            d_orig = nx.shortest_path_length(original_graph, u, v)
-                            d_summ = nx.shortest_path_length(summary_graph, u_s, v_s)
-                            if d_orig > 0:
-                                stretches.append(d_summ / d_orig)
+                    # map into summary
+                    u_s, v_s = node_mapping[u], node_mapping[v]
+                    if nx.has_path(original_graph, u, v) and nx.has_path(summary_graph, u_s, v_s):
+                        d_orig = nx.shortest_path_length(original_graph, u, v)
+                        d_summ = nx.shortest_path_length(summary_graph, u_s, v_s)
+                        if d_orig > 0:
+                            stretches.append(d_summ / d_orig)
 
-            if not stretches:
-                logger.info("No valid pairs found; returning NaN")
+            valid = len(stretches)
+            logger.info("Found %d valid pairs out of %d sampled", valid, sample_size)
+            if valid == 0:
                 return float('nan')
 
             avg_stretch = float(np.mean(stretches))
@@ -131,7 +219,7 @@ class Metrics:
         except Exception as e:
             logger.info("Error in distance_distortion: %s", e)
             return float('nan')
-    
+
     @staticmethod
     def centrality_retention(original_graph, summary_graph, node_mapping=None, k=100):
         logger.info("Starting centrality_retention computation (k=%d)", k)

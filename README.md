@@ -61,7 +61,7 @@ To quickly run experiments on a sample dataset:
 
 ```bash
 # Run a simple experiment on a small dataset
-python scripts/run.py --datasets web-NotreDame --methods collapse --compression-ratios 0.1
+python scripts/run.py --datasets web-NotreDame --methods collapse --reduction-factors 0.1
 ```
 
 ## Working with Web-Scale Graphs
@@ -74,13 +74,13 @@ python -m graphsum.io.snap list
 python -m graphsum.io.snap download web-Stanford data/
 
 # Run experiments (using the three summarization methods)
-python scripts/run.py --datasets web-Stanford --methods sparsifier collapse coarsener --compression-ratios 0.1 0.2
+python scripts/run.py --datasets web-Stanford --methods sparsifier collapse coarsener --reduction-factors 0.1 0.2
 
 # For memory-intensive datasets, use the memory-efficient flag
 python scripts/run.py \
   --datasets web-NotreDame \
   --methods collapse \
-  --compression-ratios 0.01 \
+  --reduction-factors 0.01 \
   --memory-efficient
 ```
 

@@ -3,7 +3,7 @@
 Generate Graph Summarization Results
 
 This script runs experiments to evaluate three summarization methods (Sparsifier, Collapse, Coarsener)
-on web graphs at different compression ratios (0.05, 0.10, 0.20).
+on web graphs at different reduction factors (0.05, 0.10, 0.20).
 """
 
 import os
@@ -70,9 +70,9 @@ def parse_arguments():
                        default=['sparsifier', 'collapse', 'coarsener'],
                        help='Summarization methods to evaluate')
     
-    parser.add_argument('--compression-ratios', type=float, nargs='+',
+    parser.add_argument('--reduction-factors', type=float, nargs='+',
                        default=[0.05, 0.10, 0.20],
-                       help='Compression ratios to test')
+                       help='Reduction factors to test')
     
     # Experiment options
     parser.add_argument('--output-dir', type=str, default='results',
@@ -117,7 +117,7 @@ def convert_method_name(method):
     return method.capitalize()
 
 
-def run_single_experiment(graph, method, compression_ratio, logger):
+def run_single_experiment(graph, method, reduction_factor, logger):
     """Run a single experiment and return the results."""
     
     # Create summarizer
@@ -125,7 +125,7 @@ def run_single_experiment(graph, method, compression_ratio, logger):
     
     # Time the summarization
     start_time = time.time()
-    summary_graph = summarizer.summarize(graph, reduction_factor=compression_ratio)
+    summary_graph = summarizer.summarize(graph, reduction_factor=reduction_factor)
     summarization_time = time.time() - start_time
     
     logger.info(f"  Summary created with {summary_graph.number_of_nodes()} nodes "
@@ -150,7 +150,7 @@ def run_single_experiment(graph, method, compression_ratio, logger):
     
     # Add experiment metadata
     result['method'] = method
-    result['compression_ratio'] = compression_ratio
+    result['reduction_factor'] = reduction_factor
     result['summarization_time'] = summarization_time
     result['original_nodes'] = graph.number_of_nodes()
     result['original_edges'] = graph.number_of_edges()
@@ -160,7 +160,7 @@ def run_single_experiment(graph, method, compression_ratio, logger):
     return result
 
 
-def run_experiments(datasets, methods, compression_ratios, data_dir, 
+def run_experiments(datasets, methods, reduction_factors, data_dir, 
                    output_dir, memory_efficient, runs, logger):
     """Run all experiments across datasets, methods and compression ratios."""
     
@@ -193,8 +193,8 @@ def run_experiments(datasets, methods, compression_ratios, data_dir,
             logger.info(f"  Running method: {method}")
             
             # Process each compression ratio
-            for compression_ratio in compression_ratios:
-                logger.info(f"    Compression ratio: {compression_ratio}")
+            for reduction_factor in reduction_factors:
+                logger.info(f"    Reduction factor: {reduction_factor}")
                 
                 # Run multiple times and average results
                 method_results = []
@@ -202,7 +202,7 @@ def run_experiments(datasets, methods, compression_ratios, data_dir,
                     logger.info(f"      Run {run+1}/{runs}")
                     try:
                         result = run_single_experiment(
-                            graph, method, compression_ratio, logger
+                            graph, method, reduction_factor, logger
                         )
                         result['dataset'] = dataset_name
                         result['run'] = run + 1
@@ -215,13 +215,13 @@ def run_experiments(datasets, methods, compression_ratios, data_dir,
                     avg_result = average_results(method_results)
                     avg_result['dataset'] = dataset_name
                     avg_result['method'] = method
-                    avg_result['compression_ratio'] = compression_ratio
+                    avg_result['reduction_factor'] = reduction_factor
                     all_results.append(avg_result)
                     
                     # Save individual averaged result
                     result_file = os.path.join(
                         output_dir,
-                        f"{dataset_name}_{method}_{compression_ratio:.2f}.json"
+                        f"{dataset_name}_{method}_{reduction_factor:.2f}.json"
                     )
                     with open(result_file, 'w') as f:
                         json.dump(avg_result, f, indent=2)
@@ -272,11 +272,11 @@ def generate_results_tables(results_df, output_dir, logger):
     
     # Table 1: Dataset statistics (already provided in SNAP_WEB_GRAPHS)
     
-    # Table 2: Metric values at CR=0.10 for web-Stanford
+    # Table 2: Metric values at RF=0.10 for web-Stanford
     try:
         stanford_results = results_df[
             (results_df['dataset'] == 'web-Stanford') & 
-            (np.isclose(results_df['compression_ratio'], 0.10))
+            (np.isclose(results_df['reduction_factor'], 0.10))
         ].copy()
         
         if not stanford_results.empty:
@@ -287,7 +287,7 @@ def generate_results_tables(results_df, output_dir, logger):
                 'NMI': stanford_results['community_nmi'] if 'community_nmi' in stanford_results else 0,
                 'Stretch': stanford_results['avg_stretch'] if 'avg_stretch' in stanford_results else 0, 
                 'Precision@50': stanford_results['precision_at_k'] if 'precision_at_k' in stanford_results else 0,
-                'CR': stanford_results['compression_ratio']
+                'RF': stanford_results['reduction_factor']
             })
             
             stanford_table_path = os.path.join(output_dir, 'stanford_metrics_table.csv')
@@ -296,11 +296,11 @@ def generate_results_tables(results_df, output_dir, logger):
     except Exception as e:
         logger.error(f"Error generating metrics summary table: {e}")
     
-    # Table 3: Detailed metrics on web-NotreDame at CR=0.10
+    # Table 3: Detailed metrics on web-NotreDame at RF=0.10
     try:
         notredame_results = results_df[
             (results_df['dataset'] == 'web-NotreDame') & 
-            (np.isclose(results_df['compression_ratio'], 0.10))
+            (np.isclose(results_df['reduction_factor'], 0.10))
         ].copy()
         
         if not notredame_results.empty:
@@ -310,7 +310,7 @@ def generate_results_tables(results_df, output_dir, logger):
                 'NMI': notredame_results['community_nmi'] if 'community_nmi' in notredame_results else 0,
                 'Stretch': notredame_results['avg_stretch'] if 'avg_stretch' in notredame_results else 0,
                 'Precision@50': notredame_results['precision_at_k'] if 'precision_at_k' in notredame_results else 0,
-                'CR': notredame_results['compression_ratio']
+                'RF': notredame_results['reduction_factor']
             })
             
             notredame_table_path = os.path.join(output_dir, 'notredame_detail_table.csv')
@@ -339,7 +339,7 @@ def generate_results_tables(results_df, output_dir, logger):
                 # Find the first available metric in this group
                 metric_col = next((m for m in metrics if m in dataset_results.columns), None)
                 if metric_col:
-                    plot_data = dataset_results[['paper_method', 'compression_ratio', metric_col]]
+                    plot_data = dataset_results[['paper_method', 'reduction_factor', metric_col]]
                     plot_data_path = os.path.join(plots_dir, f"{group_name}_plot_data.csv")
                     plot_data.to_csv(plot_data_path, index=False)
     except Exception as e:
@@ -363,14 +363,14 @@ def main():
     logger.info("Starting results generation")
     logger.info(f"Datasets: {args.datasets}")
     logger.info(f"Methods: {args.methods}")
-    logger.info(f"Compression ratios: {args.compression_ratios}")
+    logger.info(f"Reduction factors: {args.reduction_factors}")
     logger.info("Using core metrics for all evaluations")
     
     # Run all experiments
     run_experiments(
         datasets=args.datasets,
         methods=args.methods,
-        compression_ratios=args.compression_ratios,
+        reduction_factors=args.reduction_factors,
         data_dir=args.data_dir,
         output_dir=args.output_dir,
         memory_efficient=args.memory_efficient,
