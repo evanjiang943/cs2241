@@ -42,7 +42,7 @@ class CommunityBasedSummarizer(GraphSummarizer):
         
         Args:
             graph (nx.Graph): The graph to summarize
-            reduction_factor (float): Target reduction (ignored in this method)
+            reduction_factor (float): Target reduction (0-1), controls number of communities
             **kwargs: Additional parameters:
                 resolution (float): Community detection resolution parameter
                 weight (str): Edge weight attribute to use
@@ -61,20 +61,49 @@ class CommunityBasedSummarizer(GraphSummarizer):
         else:
             graph_for_communities = graph
         
+        # Determine target number of communities based on reduction factor
+        n_nodes = graph_for_communities.number_of_nodes()
+        target_communities = max(2, int(n_nodes * reduction_factor))
+        logger.info(f"Targeting approximately {target_communities} communities (reduction={reduction_factor})")
+        
         # Detect communities
         logger.info(f"Detecting communities using Louvain method (resolution={resolution})")
-
-        # logger.info(f"Using weight attribute: {weight_attr}")
         logger.info(f"Graph has {graph_for_communities.number_of_nodes()} nodes and {graph_for_communities.number_of_edges()} edges")
         logger.info(f"Graph density: {nx.density(graph_for_communities):.10f}")
         
-        # Call community detection with fixed parameters
-        communities = community_louvain.best_partition(
-            graph_for_communities, 
-            # weight=weight_attr,
-            resolution=resolution,
-            random_state=42
-        )
+        # Use different resolution values to find one that gives us close to the target
+        test_resolutions = [0.1, 0.2, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0, 3.0, 5.0]
+        
+        if resolution is not None and resolution > 0:
+            # If user provided a specific resolution, use that first
+            test_resolutions.insert(0, resolution)
+        
+        best_resolution = None
+        best_communities = None
+        best_count_diff = float('inf')
+        
+        for res in test_resolutions:
+            test_partition = community_louvain.best_partition(
+                graph_for_communities, 
+                resolution=res,
+                random_state=42
+            )
+            comm_count = len(set(test_partition.values()))
+            count_diff = abs(comm_count - target_communities)
+            
+            logger.info(f"Resolution {res:.2f} yields {comm_count} communities (target: {target_communities})")
+            
+            if count_diff < best_count_diff:
+                best_count_diff = count_diff
+                best_resolution = res
+                best_communities = test_partition
+                
+                # If we're within 10% of target or have exceeded the target, we can stop
+                if comm_count >= target_communities or count_diff / target_communities < 0.1:
+                    break
+        
+        logger.info(f"Selected resolution {best_resolution:.2f} with {len(set(best_communities.values()))} communities")
+        communities = best_communities
         
         community_detection_time = self._stop_timer('community_detection')
         logger.info(f"Community detection completed in {community_detection_time:.2f} seconds")
