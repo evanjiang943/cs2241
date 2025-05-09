@@ -109,11 +109,12 @@ class SpectralCoarsener(GraphSummarizer):
 
         kmeans = MiniBatchKMeans(
             n_clusters=n_summary,
-            batch_size=100_000,
-            max_iter=300,
+            batch_size=10_000,         # tune this (e.g. 1–5% of n)
+            max_iter=50,               # fewer passes over each batch
             tol=1e-3,
-            n_init=3,
-            random_state=42
+            random_state=42,
+            init="k-means++",          # same good initializer
+            n_init=1                   # no need for multiple initializations
         )
 
         clusters = kmeans.fit_predict(features)
