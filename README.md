@@ -6,22 +6,6 @@ This project implements and evaluates various graph summarization techniques wit
 
 Web-scale graphs, such as hyperlink graphs of the internet, can contain billions of nodes and edges, making analysis computationally expensive. This project explores and analyzes how well various graph reduction techniques perform on various metrics.
 
-## Features
-
-- **Multiple summarization techniques:**
-  - Community-based summarization (Louvain method)
-  - Spectral summarization (preserves spectral properties)
-  - Customizable framework for adding new methods
-
-- **Comprehensive property evaluation:**
-  - PageRank preservation (correlation and error metrics)
-  - Centrality preservation (degree, eigenvector)
-  - Community structure preservation (NMI, ARI)
-  - Degree distribution similarity
-  - Clustering coefficient preservation
-  - Path length characteristics
-  - Runtime and compression metrics
-
 ## Installation
 
 ### Using Conda (recommended)
@@ -161,16 +145,6 @@ The framework uses five core metrics to evaluate graph summaries:
 - **Compression Ratio:**
   - Quantifies the size reduction achieved by the summarization
   - Calculated as the ratio of summary size to original graph size
-
-## References
-
-The framework implements and builds upon methods from:
-
-- Riondato, M., & Vandin, F. (2017). Graph summarization with quality guarantees.
-- Loukas, A. (2019). Graph reduction with spectral and cut guarantees.
-- Spielman, D. A., & Srivastava, N. (2011). Graph sparsification by effective resistances.
-- Navlakha, S., Rastogi, R., & Shrivastava, N. (2008). Graph summarization with bounded error.
-- Mitliagkas, I.,et al (2015). FrogWild! -- Fast PageRank Approximations on Graph Engines.
 
 ## License
 
